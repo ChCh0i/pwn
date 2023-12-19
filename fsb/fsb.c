@@ -1,31 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-
-
-void set();
-void menual();
-int go();
-void create_dia(int page, char arr[10][11]);
-void write_dia(int page, char arr[10][11]);
-int read_dia(int page,char arr[10][11]);
-void list(int page, char arr[10][11]);
-
-char arr_data[10][100];
-
-int main()
-{
-    set();
-
-    while(1)
-    {
-        if (go() == 4)
-            break;
-    }
-    printf("bye\n");
-    return 0;
-}
 
 void set()
 {
@@ -33,45 +8,58 @@ void set()
     setvbuf(stdout,0,2,0);
 }
 
+void flag()
+{
+    system("/bin/sh");
+}
+
 void menual()
 {
-    printf("1.Create_diary\n");
-    printf("2.Write_diary\n");
-    printf("3.read_diary\n");
-    printf("4.exit\n\n");
+    printf("1.Create diary\n");
+    printf("2.Write_read diary\n");
+    printf("3.list\n");
+    printf("4.exit\n");
+}
+
+void list(int page,char arr[5][13])
+{
+    for(int i = 0; i<page; i++)
+    {
+        printf("%d. %s\n",page,arr[i]);
+    }
 }
 
 int go()
 {
-    char arr[10][11];
+    char arr[5][13] = {};
+    
 
-    int number = 0;
+    int a = 0;
     int page = 0;
-
-    while(number != 4)
+    do
     {
         menual();
-
+        
         printf("index : ");
-        scanf("%d",&number);
-
-        switch(number){
+        scanf("%d",&a);
+        
+        switch(a)
+        {
             case 1:
-                if(page > 9)
+                if(page>4)
                 {
-                    printf("Exceeded\n");
+                    printf("diary pull!\n");
                     return 4;
                 }
-
                 create_dia(page,arr);
 
-                page += 1;
+                page+=1;
                 break;
-            case 2:              
+            case 2:
                 write_dia(page,arr);
                 break;
             case 3:
-                read_dia(page,arr);
+                list(page,arr);
                 break;
             case 4:
                 return 4;
@@ -79,60 +67,60 @@ int go()
                 getchar();
                 break;
         }
-    }
+    }while(a != 4);
 }
-
-void create_dia(int page, char arr[10][11])
+void create_dia(int page,char arr[5][13])
 {
-    printf("\ninput diary title (%d/10)\n",page+1);
-    printf("index : ");
+    printf("please input diary title (%d/5)\n",page);
 
-    scanf("%10s",arr[page]);
-    getchar();
-}
-
-void write_dia(int page, char arr[10][11])
-{
-    int number = 0;
-
-    list(page,arr);
-    printf("index : ");
-    scanf("%d",&number);
-    
-    printf("title : %s\n",arr[number-1]);
-    printf(">>> ");
-    scanf("%99s",arr_data[number-1]);
-    getchar();
-}
-
-int read_dia(int page,char arr[10][11])
-{
-    char v2[40];
-    int number = 0;
-    char v3[7] = "hIdd3n";
-    list(page,arr);
-
-    printf("index : ");
-    scanf("%d",&number);
-    if(!strcmp(arr[number-1],v3))
+    if(page<=0)
     {
-        printf("how did you find it...\n");
+        printf("you not create diary\n");
+    }
+
+    if(page>=0)
+    {
         printf(">>> ");
-        scanf("%60s",v2);
-        printf("??? : %s\n",v2);
-        return 0;
+        scanf("%s",arr[page]);
+        getchar();
     }
+}
+void write_dia(int page,char arr[5][13])
+{
+    char buf[0x100];
+    int number = 0;
 
-    printf("text : %s\n\n",arr_data[number-1]);
+    while(1)
+    {
+        list(page,arr);
 
+        printf(">>> ");
+        scanf("%d",&number);
+
+        if(number > 0 && number <= page)
+        {
+            read(0,buf,0x100);
+            printf("your saved diary\n");
+            if(strcmp(arr[number-1],"admin")==0)
+            {
+                printf(buf);
+                exit(0);
+            }
+            printf("buf : %s\n",buf);
+        }
+    }
 }
 
-void list(int page, char arr[10][11])
+int main()
 {
-    printf("\n==select diary number==\n");
-    for(int i = 1; i<=page ; i++)
+    set();
+
+    while(1)
     {
-        printf("%d.%s\n",i,arr[i-1]);
+        if(go()==4)
+        {
+            break;
+        }
     }
-    printf("=======================\n\n");
+    printf("bye\n");
 }
